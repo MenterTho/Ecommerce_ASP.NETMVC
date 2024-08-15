@@ -1,0 +1,50 @@
+﻿@model Ecommerce.ViewModels.PageViewModel<Ecommerce.ViewModels.HangHoaViewModel>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_LayoutDanhSachHH";
+}
+
+<!-- Single Page Header start -->
+@section BreadCum{
+    <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Shop</h1>
+    </div>
+}
+<!-- Single Page Header End -->
+
+@await Html.PartialAsync("ProductItem", Model.item)
+
+<!-- Phân trang -->
+<div class="col-12">
+    <div class="pagination d-flex justify-content-center mt-5">
+        @if (Model.HasPreviousPage)
+        {
+            <a asp-action="Index" asp-route-loai="@ViewBag.Loai" asp-route-pageNumber="@(Model.PageNumber - 1)" class="rounded">&laquo;</a>
+        }
+        else
+        {
+            <span class="rounded disabled">&laquo;</span>
+        }
+
+        @for (var i = 1; i <= Model.TotalPages; i++)
+        {
+            if (i == Model.PageNumber)
+            {
+                <a asp-action="Index" asp-route-loai="@ViewBag.Loai" asp-route-pageNumber="@i" class="active rounded">@i</a>
+            }
+            else
+            {
+                <a asp-action="Index" asp-route-loai="@ViewBag.Loai" asp-route-pageNumber="@i" class="rounded">@i</a>
+            }
+        }
+
+        @if (Model.HasNextPage)
+        {
+            <a asp-action="Index" asp-route-loai="@ViewBag.Loai" asp-route-pageNumber="@(Model.PageNumber + 1)" class="rounded">&raquo;</a>
+        }
+        else
+        {
+            <span class="rounded disabled">&raquo;</span>
+        }
+    </div>
+</div>
