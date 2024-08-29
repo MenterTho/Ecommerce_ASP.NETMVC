@@ -215,11 +215,11 @@
 
 .carousel-control-prev {
     margin-left: 20px;
-}
+}s
 
 .page-header {
     position: relative;
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(../img/cart-page-header-img.jpg);
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(../img/best-product-6.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
