@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Controllers
 {
-    [Route("hanghoa")]
+    [Route("product")]
     public class HangHoaController : Controller
     {
         

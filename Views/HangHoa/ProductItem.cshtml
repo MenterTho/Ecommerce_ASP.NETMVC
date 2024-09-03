@@ -3,7 +3,7 @@
 @foreach (var item in Model)
 {
 	<div class="col-md-6 col-lg-6 col-xl-4">
-		<div class="rounded position-relative fruite-item">
+		<div class="rounded position-relative fruite-item" style=" background-color: #f0f0f0;">
 			<div class="fruite-img">
 				<a asp-action="Detail" asp-controller="HangHoa" asp-route-id="@item.MaHh">
 					<img src="~/Hinh/HangHoa/@item.Hinh" class="img-fluid w-100 rounded-top" alt="@item.TenHH">
