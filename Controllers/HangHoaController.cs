@@ -16,28 +16,30 @@ namespace Ecommerce.Controllers
             _hangHoaService = hangHoaService;
         }
         [HttpGet("index")]
-        public IActionResult Index(int? loai, int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int? loai, int pageNumber = 1, int pageSize = 10)
         {
-            var result = _hangHoaService.GetHangHoa(loai, pageNumber, pageSize);
-            ViewBag.Loai = loai;
-            return View(result);
+            var hangHoas = await _hangHoaService.GetHangHoasAsync(loai, pageNumber, pageSize);
+            return View(hangHoas);
         }
         [HttpGet("search")]
-        public IActionResult Search(string? query)
+		public async Task<IActionResult> Search(string? query)
+		{
+			var hangHoas = await _hangHoaService.SearchHangHoaAsync(query);
+			return View(hangHoas); // Trả về kết quả cho view
+		}
+		[HttpGet("detail/{id:int}")]
+        public async Task<IActionResult> Detail(int id)
         {
-            var result = _hangHoaService.SearchHangHoa(query);
-            return View(result);
-        }
-        [HttpGet("detail/{id:int}")]
-        public IActionResult Detail(int id)
-        {
-            var result = _hangHoaService.GetHangHoaDetail(id);
-            if (result == null)
+            try
             {
-                TempData["Message"] = $"Không thấy sản phẩm có mã {id}";
-                return Redirect("/404");
+                var hangHoaDetail = await _hangHoaService.GetHangHoaDetailAsync(id);
+                return View(hangHoaDetail);
             }
-            return View(result);
+            catch (KeyNotFoundException ex)
+            {
+                TempData["Message"] = ex.Message;
+                return RedirectToAction("Error", "Home"); // Giả sử bạn có Action Error trong HomeController
+            }
         }
     }
 }
