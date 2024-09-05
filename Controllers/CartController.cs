@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Controllers
 {
-    [Route("cart")]
+    [Route("Cart")]
     public class CartController : Controller
     {
         private readonly CartService _cartService;
@@ -22,7 +22,7 @@ namespace Ecommerce.Controllers
         [HttpGet("index")]
         public IActionResult Index()
         {
-            var cart = _cartService.GetCart(HttpContext);
+            var cart = _cartService.GetCartItems();
             return View(cart);
         }
 
@@ -32,13 +32,18 @@ namespace Ecommerce.Controllers
         {
             try
             {
-                _cartService.AddToCart(HttpContext, id, quantity);
+                _cartService.AddToCart(id, quantity);
                 return RedirectToAction("Index");
             }
             catch (KeyNotFoundException ex)
             {
-                TempData["Message"] = ex.Message;
+                TempData["Message"] = ex.Message; 
                 return Redirect("/404");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Có lỗi xảy ra: {ex.Message}";
+                return RedirectToAction("Index");
             }
         }
 
@@ -47,18 +52,33 @@ namespace Ecommerce.Controllers
         [HttpPost("remove/{id}")]
         public IActionResult RemoveCart(int id)
         {
-            _cartService.RemoveCart(HttpContext, id);
-            return RedirectToAction("Index");
+            try
+            {
+                _cartService.RemoveCart(id);
+                return RedirectToAction("Index");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                TempData["Message"] = ex.Message;
+                return Redirect("/404");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Có lỗi xảy ra: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
+
 
         // Hiển thị trang thanh toán
         [Authorize]
         [HttpGet("checkout")]
         public IActionResult Checkout()
         {
-            var cart = _cartService.GetCart(HttpContext);
+            var cart = _cartService.GetCartItems();
             if (cart.Count == 0)
             {
+                TempData["Message"] = "Giỏ hàng của bạn đang trống.";
                 return Redirect("/");
             }
 
@@ -68,7 +88,7 @@ namespace Ecommerce.Controllers
         // Xử lý yêu cầu thanh toán
         [Authorize]
 		[HttpPost("checkout")]
-		public IActionResult Checkout(CheckoutVM model)
+        public async Task<IActionResult> Checkout(CheckoutVM model)
         {
             if (ModelState.IsValid)
             {
@@ -78,17 +98,18 @@ namespace Ecommerce.Controllers
                     return Unauthorized();
                 }
 
-                var success = _cartService.Checkout(HttpContext,model, customerId, out string errorMessage);
-
-                if (success)
+                try
                 {
+                    await _cartService.Checkout(model, customerId);
                     return View("Success");
                 }
-
-                ModelState.AddModelError(string.Empty, errorMessage);
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, $"Lỗi khi thanh toán: {ex.Message}");
+                }
             }
 
-            return View(_cartService.GetCart(HttpContext));
+            return View(_cartService.GetCartItems());
         }
     }
 }

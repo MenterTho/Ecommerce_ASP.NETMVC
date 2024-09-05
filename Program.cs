@@ -8,27 +8,28 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Cấu hình dịch vụ và dịch vụ cần thiết
+//Cấu hình dịch vụ và dịch vụ cần thiết
 ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
-// 2. Cấu hình ghi log và kiểm tra kết nối cơ sở dữ liệu
+//Cấu hình ghi log và kiểm tra kết nối cơ sở dữ liệu
 ConfigureLoggingAndDatabase(app);
 
-// 3. Cấu hình middleware (phần xử lý HTTP request)
+//Cấu hình middleware (phần xử lý HTTP request)
 ConfigureMiddleware(app);
 
 app.Run();
 
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
+    services.AddHttpContextAccessor();
     // Thêm dịch vụ cho Controllers và Views
-    services.AddControllersWithViews();
+    services.AddControllersWithViews(); // MVC
     services.AddScoped<HangHoaService>();
     services.AddScoped<CartService>();
 
-    // Cấu hình AutoMapper để ánh xạ các đối tượng
+    // Cấu hình AutoMapper ánh xạ đối tượng
     services.AddAutoMapper(typeof(AutoMapperProfile));
 
     // Cấu hình DbContext với SQL Server
@@ -38,27 +39,27 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     // Cấu hình session
     services.AddSession(options =>
     {
-        options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian session hết hạn sau 10 phút
-        options.Cookie.HttpOnly = true; // Chỉ cho phép truy cập cookie từ phía server
-        options.Cookie.IsEssential = true; // Đánh dấu cookie này là cần thiết cho ứng dụng
+        options.IdleTimeout = TimeSpan.FromMinutes(30); 
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
     });
 
     // Cấu hình xác thực bằng cookie
     services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
-                options.LoginPath = "/Register/DangNhap"; // Đường dẫn tới trang đăng nhập
-                options.AccessDeniedPath = "/AccessDenied"; // Đường dẫn tới trang lỗi truy cập bị từ chối
+                options.LoginPath = "/Register/DangNhap"; 
+                options.AccessDeniedPath = "/AccessDenied"; 
             });
 }
 
 void ConfigureLoggingAndDatabase(WebApplication app)
 {
-    // Cấu hình ghi log
+    // log
     var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
     var logger = loggerFactory.CreateLogger<Program>();
 
-    // Kiểm tra kết nối cơ sở dữ liệu và ghi log
+    // check sql & log 
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<Hshop2023Context>();
@@ -85,8 +86,8 @@ void ConfigureMiddleware(WebApplication app)
     // Cấu hình pipeline xử lý request HTTP
     if (!app.Environment.IsDevelopment())
     {
-        app.UseExceptionHandler("/Home/Error"); // Cấu hình trang lỗi khi xảy ra ngoại lệ trong môi trường không phải phát triển
-        app.UseHsts(); // Cấu hình HSTS (HTTP Strict Transport Security)
+        app.UseExceptionHandler("/Home/Error"); 
+        app.UseHsts(); 
     }
 
     app.UseHttpsRedirection(); // Chuyển hướng tất cả các request từ HTTP sang HTTPS
