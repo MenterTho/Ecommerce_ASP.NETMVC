@@ -6,129 +6,101 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Service;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using System.Security.Claims;
 using static Ecommerce.ViewModels.RegisterViewModel;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Ecommerce.Controllers
 {
-	public class RegisterController : Controller
+    [Route("User")]
+    public class RegisterController : Controller
 	{
-		private readonly Hshop2023Context db;
-		private readonly IMapper _mapper;
+        private readonly IRegisterService _khachHangService;
 
-		public RegisterController(Hshop2023Context context, IMapper mapper)
-		{
-			db = context;
-			_mapper = mapper;
-		}	
+        public RegisterController(IRegisterService khachHangService)
+        {
+            _khachHangService = khachHangService;
+        }
+        [HttpGet("DangKy")]
+        public IActionResult DangKy()
+        {
+            return View();
+        }
+        [HttpPost("DangKy")]
+        public async Task<IActionResult> DangKy(RegisterViewModel model, IFormFile Hinh)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _khachHangService.DangKyAsync(model, Hinh);
+                    return RedirectToAction("Index", "HangHoa");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
+            return View(model);
+        }
 
-		[HttpGet]
-		public IActionResult DangKy()
-		{
-			return View();
-		}
-
-		[HttpPost]
-		public IActionResult DangKy(RegisterViewModel model, IFormFile Hinh)
-		{
-			if (ModelState.IsValid)
-			{
-				try
-				{
-					var khachHang = _mapper.Map<KhachHang>(model);
-					khachHang.RandomKey = MyUtil.GenerateRamdomKey();
-					khachHang.MatKhau = model.MatKhau.ToMd5Hash(khachHang.RandomKey);
-					khachHang.HieuLuc = true;//sẽ xử lý khi dùng Mail để active
-					khachHang.VaiTro = 0;
-
-					if (Hinh != null)
-					{
-						khachHang.Hinh = MyUtil.UploadHinh(Hinh, "KhachHang");
-					}
-
-					db.Add(khachHang);
-					db.SaveChanges();
-					return RedirectToAction("Index", "HangHoa");
-				}
-				catch (Exception ex)
-				{
-					var mess = $"{ex.Message} shh";
-				}
-			}
-			return View(model);
-		}
-		#region Login
-		[HttpGet]
-		public IActionResult DangNhap(string? ReturnUrl)
+        [HttpGet("DangNhap")]
+        public IActionResult DangNhap(string? ReturnUrl)
 		{
 			ViewBag.ReturnUrl = ReturnUrl;
 			return View();
 		}
 
-		[HttpPost]
-		public async Task<IActionResult> DangNhap(LoginViewModel model, string? ReturnUrl)
-		{
-			ViewBag.ReturnUrl = ReturnUrl;
-			if (ModelState.IsValid)
-			{
-				var khachHang = db.KhachHangs.SingleOrDefault(kh => kh.MaKh == model.UserName);
-				if (khachHang == null)
-				{
-					ModelState.AddModelError("loi", "Không có khách hàng này");
-				}
-				else
-				{
-					if (!khachHang.HieuLuc)
-					{
-						ModelState.AddModelError("loi", "Tài khoản đã bị khóa. Vui lòng liên hệ Admin.");
-					}
-					else
-					{
-						if (khachHang.MatKhau != model.Password.ToMd5Hash(khachHang.RandomKey))
-						{
-							ModelState.AddModelError("loi", "Sai thông tin đăng nhập");
-						}
-						else
-						{
-							var claims = new List<Claim> {
-								new Claim(ClaimTypes.Email, khachHang.Email),
-								new Claim(ClaimTypes.Name, khachHang.HoTen),
-								new Claim(MySetting.CLAIM_CUSTOMERID, khachHang.MaKh),
+        [HttpPost("DangNhap")]
+        public async Task<IActionResult> DangNhap(LoginViewModel model, string? ReturnUrl)
+        {
+            ViewBag.ReturnUrl = ReturnUrl;
 
-								//claim - role động
-								new Claim(ClaimTypes.Role, MySetting.CLAIM_CUSTOMERID)
-							};
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var khachHang = await _khachHangService.DangNhapAsync(model);
 
-							var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-							var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                    // Xử lý đăng nhập và Claims
+                    var claims = new List<Claim> {
+                    new Claim(ClaimTypes.Email, khachHang.Email),
+                    new Claim(ClaimTypes.Name, khachHang.HoTen),
+                    new Claim(MySetting.CLAIM_CUSTOMERID, khachHang.MaKh),
+                    new Claim(ClaimTypes.Role, "Customer")
+                };
 
-							await HttpContext.SignInAsync(claimsPrincipal);
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-							if (Url.IsLocalUrl(ReturnUrl))
-							{
-								return Redirect(ReturnUrl);
-							}
-							else
-							{
-								return Redirect("/");
-							}
-						}
-					}
-				}
-			}
-			return View();
-		}
-		#endregion
+                    await HttpContext.SignInAsync(claimsPrincipal);
 
-		[Authorize]
-		public IActionResult Profile()
+                    if (Url.IsLocalUrl(ReturnUrl))
+                    {
+                        return Redirect(ReturnUrl);
+                    }
+                    return Redirect("/");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
+            return View(model);
+        }
+
+        [Authorize]
+        [HttpGet("Profile")]
+        public IActionResult Profile()
 		{
 			return View();
 		}
 
-		[Authorize]
-		public async Task<IActionResult> DangXuat()
+        [Authorize]
+        [HttpGet("DangXuat")]
+        public async Task<IActionResult> DangXuat()
 		{
 			await HttpContext.SignOutAsync();
 			return Redirect("/");

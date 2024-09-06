@@ -22,22 +22,22 @@ namespace Ecommerce.Controllers
         [HttpGet("index")]
         public IActionResult Index()
         {
-            var cart = _cartService.GetCartItems();
+            var cart = _cartService.GetCart();
             return View(cart);
         }
 
         // Thêm sản phẩm vào giỏ hàng
         [HttpPost("add/{id}")]
-        public IActionResult AddToCart(int id, int quantity = 1)
+        public async Task<IActionResult> AddToCart(int id, int quantity = 1)
         {
             try
             {
-                _cartService.AddToCart(id, quantity);
+                await _cartService.AddToCart(id, quantity); // Sử dụng await
                 return RedirectToAction("Index");
             }
             catch (KeyNotFoundException ex)
             {
-                TempData["Message"] = ex.Message; 
+                TempData["Message"] = ex.Message;
                 return Redirect("/404");
             }
             catch (Exception ex)
@@ -75,7 +75,7 @@ namespace Ecommerce.Controllers
         [HttpGet("checkout")]
         public IActionResult Checkout()
         {
-            var cart = _cartService.GetCartItems();
+            var cart = _cartService.GetCart();
             if (cart.Count == 0)
             {
                 TempData["Message"] = "Giỏ hàng của bạn đang trống.";
@@ -109,7 +109,7 @@ namespace Ecommerce.Controllers
                 }
             }
 
-            return View(_cartService.GetCartItems());
+            return View(_cartService.GetCart());
         }
     }
 }

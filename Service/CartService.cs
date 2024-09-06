@@ -8,9 +8,8 @@ namespace Ecommerce.Service
     public interface ICartService
     {
         // using promise 
-        List<CartViewModel> GetCartItems();
         Task AddToCart(int id, int quantity);
-        Task RemoveFromCart(int id);
+        Task RemoveCart(int id);
         Task Checkout(CheckoutVM model, string customerId);
     }
     public class CartService: ICartService
@@ -32,7 +31,7 @@ namespace Ecommerce.Service
         {
             try
             {
-                var cart = GetCartItems();
+                var cart = GetCart();
                 var item = cart.SingleOrDefault(p => p.MaHh == id);
 
                 if (item == null)
@@ -60,7 +59,7 @@ namespace Ecommerce.Service
             }
             catch (Exception ex)
             {
-                // Ghi log lỗi (nếu cần)
+   
                 throw new Exception($"Lỗi khi thêm hàng vào giỏ: {ex.Message}");
             }
         }
@@ -69,7 +68,7 @@ namespace Ecommerce.Service
         {
             try
             {
-                var cart = GetCartItems();
+                var cart = GetCart();
                 var item = cart.SingleOrDefault(p => p.MaHh == id);
                 if (item != null)
                 {
@@ -118,7 +117,7 @@ namespace Ecommerce.Service
                         await db.SaveChangesAsync();
 
                         var cthds = new List<ChiTietHd>();
-                        foreach (var item in GetCartItems())
+                        foreach (var item in GetCart())
                         {
                             cthds.Add(new ChiTietHd
                             {
@@ -149,14 +148,5 @@ namespace Ecommerce.Service
             }
         }
 
-        public List<CartViewModel> GetCartItems()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveFromCart(int id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
