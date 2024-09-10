@@ -13,17 +13,17 @@
 			<div class="p-4 border border-secondary border-top-0 rounded-bottom">
 				<a asp-action="Detail" asp-controller="HangHoa" asp-route-id="@item.MaHh">
 
-				<h4>@item.TenHH</h4>
-				<p>@item.MoTaNgan</p>
-				<div class="d-flex justify-content-between flex-lg-wrap">
-					<p class="text-dark fs-5 fw-bold mb-0">$@item.DonGia</p>
-						<form asp-action="AddToCart" asp-controller="Cart" asp-route-id="@item.MaHh" method="post">
-							<input type="hidden" name="quantity" value="1" />
-							<button type="submit" class="btn border border-secondary rounded-pill px-3 text-primary">
-								<i class="fa fa-shopping-bag me-2 text-primary"></i> Đưa vào giỏ
-							</button>
-						</form>
-				</div>
+					<h4>@item.TenHH</h4>
+					<p>@item.MoTaNgan</p>
+					<div class="d-flex justify-content-between flex-lg-wrap">
+						<p class="text-dark fs-5 fw-bold mb-0">$@item.DonGia</p>
+							<form asp-action="AddToCart" asp-controller="Cart" asp-route-id="@item.MaHh" method="post">
+								<input type="hidden" name="quantity" value="1" />
+								<button type="submit" class="btn border border-secondary rounded-pill px-3 text-primary">
+									<i class="fa fa-shopping-bag me-2 text-primary"></i> Đưa vào giỏ
+								</button>
+							</form>
+					</div>
 				</a>
 			</div>
 		</div>

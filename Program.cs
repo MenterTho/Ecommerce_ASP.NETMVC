@@ -27,7 +27,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     // Thêm dịch vụ cho Controllers và Views
     services.AddControllersWithViews(); // MVC
     services.AddScoped<HangHoaService>();
-    services.AddScoped<ICartService,CartService>();
+    services.AddScoped<CartService>();
+
     services.AddScoped<IRegisterService, RegisterService>();
 
     // Cấu hình AutoMapper ánh xạ đối tượng

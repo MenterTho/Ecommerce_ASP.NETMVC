@@ -10,7 +10,7 @@ namespace Ecommerce.Service
         Task<PageViewModel<HangHoaViewModel>> GetHangHoasAsync(int? loai, int pageNumber = 1, int pageSize = 10);
         Task<ChiTietHangHoaVM> GetHangHoaDetailAsync(int id);
         Task<List<HangHoaViewModel>> SearchHangHoaAsync(string query);
-    }
+	}
     public class HangHoaService : IHangHoaService
     {
         private readonly Hshop2023Context db;
@@ -19,6 +19,7 @@ namespace Ecommerce.Service
         {
             db = conetxt;
         }
+        
         public async Task<PageViewModel<HangHoaViewModel>> GetHangHoasAsync(int? loai, int pageNumber = 1, int pageSize = 10)
         {
             // Khởi tạo truy vấn
@@ -109,5 +110,6 @@ namespace Ecommerce.Service
 
             return result;
         }
-    }
+
+	}
 }
