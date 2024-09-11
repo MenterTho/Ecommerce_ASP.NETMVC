@@ -18,28 +18,32 @@ namespace Ecommerce.ViewComponents
 
 		public async Task<IViewComponentResult> InvokeAsync(string categoryName, int currentProductId)
 		{
-			var allProducts = await _context.HangHoas
-				.Where(h => h.MaLoaiNavigation.TenLoai == categoryName && h.MaHh != currentProductId)
-				.Select(h => new HangHoaViewModel
-				{
-					MaHh = h.MaHh,
-					TenHH = h.TenHh,
-					Hinh = h.Hinh,
-					DonGia = h.DonGia ?? 0,
-					MoTaNgan = h.MoTaDonVi,
-					TenLoai = h.MaLoaiNavigation.TenLoai
-				})
-				.ToListAsync();
+			// Truy vấn danh sách sản phẩm từ cơ sở dữ liệu
+			var hangHoas = _context.HangHoas.AsQueryable();
 
-			var groupedProducts = allProducts
-				.GroupBy(h => h.TenLoai)
-				.Select(g => g.FirstOrDefault())  
-				.Take(4)
-				.ToList();
+			// Lọc các sản phẩm dựa trên categoryName (tên loại) và loại bỏ sản phẩm hiện tại
+			if (!string.IsNullOrEmpty(categoryName))
+			{
+				hangHoas = hangHoas.Where(p => p.MaLoaiNavigation.TenLoai == categoryName && p.MaHh != currentProductId);
+			}
 
-			return View(groupedProducts);
+			// Thực hiện Select để chuyển đổi dữ liệu thành ViewModel
+			var relatedProducts = await hangHoas.Select(p => new HangHoaViewModel
+			{
+				MaHh = p.MaHh,
+				TenHH = p.TenHh,
+				Hinh = p.Hinh ?? "",
+				DonGia = p.DonGia ?? 0,
+				MoTaNgan = p.MoTaDonVi ?? "",
+				TenLoai = p.MaLoaiNavigation.TenLoai
+			})
+			.Take(4)  // Lấy tối đa 4 sản phẩm
+			.ToListAsync();
+
+			return View(relatedProducts);
 		}
-
-
 	}
+
+
 }
+
