@@ -18,16 +18,12 @@ namespace Ecommerce.ViewComponents
 
 		public async Task<IViewComponentResult> InvokeAsync(string categoryName, int currentProductId)
 		{
-			// Truy vấn danh sách sản phẩm từ cơ sở dữ liệu
 			var hangHoas = _context.HangHoas.AsQueryable();
-
-			// Lọc các sản phẩm dựa trên categoryName (tên loại) và loại bỏ sản phẩm hiện tại
 			if (!string.IsNullOrEmpty(categoryName))
 			{
 				hangHoas = hangHoas.Where(p => p.MaLoaiNavigation.TenLoai == categoryName && p.MaHh != currentProductId);
 			}
 
-			// Thực hiện Select để chuyển đổi dữ liệu thành ViewModel
 			var relatedProducts = await hangHoas.Select(p => new HangHoaViewModel
 			{
 				MaHh = p.MaHh,
@@ -37,7 +33,7 @@ namespace Ecommerce.ViewComponents
 				MoTaNgan = p.MoTaDonVi ?? "",
 				TenLoai = p.MaLoaiNavigation.TenLoai
 			})
-			.Take(4)  // Lấy tối đa 4 sản phẩm
+			.Take(10)  
 			.ToListAsync();
 
 			return View(relatedProducts);
