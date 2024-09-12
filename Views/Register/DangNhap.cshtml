@@ -2,8 +2,61 @@
 @{
 	ViewData["Title"] = "Đăng nhập";
 }
+<link href="~/css/Login.css" rel="stylesheet">
 
-<div class="container-fluid py-5">
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Inicio de sesión</title>
+</head>
+
+<body>
+    <section>
+        <div class="login-container">
+            <h2>Login</h2>
+
+            <form>
+                <div class="input-box">
+                    <span class="icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </span>
+
+                    <input required type="text" id="email">
+                    <label for="email">User Email</label>
+                </div>
+
+                <div class="input-box">
+                    <span class="icon">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+
+                    <input required type="password" id="contraseña">
+                    <label for="contraseña">User Password</label>
+                </div>
+
+                <div class="remember-forgot">
+                    <label>
+                        <input type="checkbox"> Remeber
+                    </label>
+
+                    <a href="#">Forgot password>
+                </div>
+
+                <button type="submit">Login</button>
+            </form>
+
+            <div class="create-account">
+                <a href="#">Register</a>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+
+@* <div class="container-fluid py-5">
 	<div class="container py-5">
 		<h1 class="mb-4">Đăng nhập</h1>
 		<form asp-action="DangNhap" asp-route-returnurl="@ViewBag.ReturnUrl">
@@ -32,3 +85,4 @@
 	</div>
 </div>
 
+ *@
